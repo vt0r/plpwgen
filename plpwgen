@@ -1,9 +1,16 @@
 #!/usr/bin/perl -w
+# --------------------------------
+# Sal's Random Password Generator
+# --------------------------------
+# It does what it says.
+# --------------------------------
+# Copyright (c) 2015, Salvatore LaMendola <salvatore@lamendola.me>
+# All rights reserved.
 
 use warnings;
 use strict;
 
-# Default length/number
+# Default length/number of passwords to generate
 my $len = 19;
 my $num = 1;
 

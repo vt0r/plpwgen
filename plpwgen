@@ -7,16 +7,8 @@ use strict;
 my $len = 19;
 my $num = 1;
 
-# Custom definition for safe symbols
-my @symbols = ('-', '_', '!', '@', '#', '$', '%', '^', '&',
-    '*', '/', '\\', '(', ')', '_', '+', '{', '}', '|', ':',
-    '<', '>', '?', '=', 'A'..'Z', 'a'..'z', '0'..'9');
-
-# Alphanumeric-only option
-my @alphanumeric = ('A'..'Z', 'a'..'z', '0'..'9');
-
 # Pull in args and list usage
-my $numargs = scalar @ARGV; 
+my $numargs = scalar @ARGV;
     if ($numargs == 0 || $ARGV[0] eq "-h") {
         print "Sal's Random Password Generator\n";
         print "-------------------------------\n";
@@ -29,69 +21,85 @@ my $numargs = scalar @ARGV;
         print "-h               Display this usage information\n\n";
         print "If no length or number are defined, a default length of $len and number of $num will be used.\n";
         exit(0);
-    } 
+    }
 
+# Check for the password/secret type
 my $pwtype = $ARGV[0];
 
+# If a length was supplied, override the default
 if (defined $ARGV[1] && $ARGV[1] =~ /^\d+$/) {
     $len = $ARGV[1];
 }
 
+# If a number was supplied, override the default
 if (defined $ARGV[2] && $ARGV[2] =~ /^\d+$/) {
     $num = $ARGV[2];
 }
 
+sub pwgen{
+    # Custom definition for 'safe' symbols + alphanumeric
+    my @symbols = ('-', '_', '!', '@', '#', '$', '%', '^', '&',
+        '*', '/', '\\', '(', ')', '_', '+', '{', '}', '|', ':',
+        '<', '>', '?', '=', 'A'..'Z', 'a'..'z', '0'..'9');
+
+    # Alphanumeric-only option
+    my @alphanumeric = ('A'..'Z', 'a'..'z', '0'..'9');
+
+    # Time to do the actual generation
+    my $pass;
+    $pass = "";
+    if ($_[1] eq "symbols") {
+        $pass .= @symbols[rand @symbols] for 1..$_[0];
+    } elsif ($_[1] eq "alphanumeric") {
+        $pass .= @alphanumeric[rand @alphanumeric] for 1..$_[0];
+    } else {
+        exit(1);
+    }
+    return $pass;
+}
+
+# Generate random password(s) with symbols + alpha
 if ($pwtype eq "-s") {
     my $count = 0;
-    my $pass;
     while ($count < $num) {
-        $pass = "";
-        $pass .= $symbols[rand @symbols] for 1..$len;
+        my $pass = pwgen($len, "symbols");
         print "$pass\n";
         $count++;
     }
 }
 
+# Generate random password(s) with alphanumeric only
 if ($pwtype eq "-a") {
     my $count = 0;
-    my $pass;
     while ($count < $num) {
-        $pass = "";
-        $pass .= $alphanumeric[rand @alphanumeric] for 1..$len;
+        my $pass = pwgen($len, "alphanumeric");
         print "$pass\n";
         $count++;
     }
 }
 
+# Generate random phpMyAdmin Blowfish secret string
 if ($pwtype eq "-p") {
-    my $pass = "";
-    $pass .= $symbols[rand @symbols] for 1..64;
+    my $pass = pwgen("64", "symbols");
     print "$pass\n";
 }
 
+# Generate random encryption secrets for WordPress
 if ($pwtype eq "-w") {
-    my $pass1 = "";
-    my $pass2 = "";
-    my $pass3 = "";
-    my $pass4 = "";
-    my $pass5 = "";
-    my $pass6 = "";
-    my $pass7 = "";
-    my $pass8 = "";
-    $pass1 .= $symbols[rand @symbols] for 1..64;
+    my $pass1 = pwgen("64", "symbols");
     print "define('AUTH_KEY',\t\t'$pass1');\n";
-    $pass2 .= $symbols[rand @symbols] for 1..64;
+    my $pass2 = pwgen("64", "symbols");
     print "define('SECURE_AUTH_KEY',\t'$pass2');\n";
-    $pass3 .= $symbols[rand @symbols] for 1..64;
+    my $pass3 = pwgen("64", "symbols");
     print "define('LOGGED_IN_KEY',\t\t'$pass3');\n";
-    $pass4 .= $symbols[rand @symbols] for 1..64;
+    my $pass4 = pwgen("64", "symbols");
     print "define('NONCE_KEY',\t\t'$pass4');\n";
-    $pass5 .= $symbols[rand @symbols] for 1..64;
+    my $pass5 = pwgen("64", "symbols");
     print "define('AUTH_SALT',\t\t'$pass5');\n";
-    $pass6 .= $symbols[rand @symbols] for 1..64;
+    my $pass6 = pwgen("64", "symbols");
     print "define('SECURE_AUTH_SALT',\t'$pass6');\n";
-    $pass7 .= $symbols[rand @symbols] for 1..64;
+    my $pass7 = pwgen("64", "symbols");
     print "define('LOGGED_IN_SALT',\t'$pass7');\n";
-    $pass8 .= $symbols[rand @symbols] for 1..64;
+    my $pass8 = pwgen("64", "symbols");
     print "define('NONCE_SALT',\t\t'$pass8');\n";
 }
